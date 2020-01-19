@@ -65,7 +65,6 @@ class OffPolicyRLAlgorithm(RLAlgorithm):
         self.min_buffer_size = min_buffer_size
         self.rollout_batch_size = rollout_batch_size
         self.reward_scale = reward_scale
-        self.evaluate = False
         self.input_include_goal = input_include_goal
         self.smooth_return = smooth_return
         self.max_path_length = max_path_length
@@ -96,7 +95,7 @@ class OffPolicyRLAlgorithm(RLAlgorithm):
                     path['rewards'] *= self.reward_scale
                 last_return = self.train_once(runner.step_itr,
                                               runner.step_path)
-                if cycle == 0 and self.evaluate:
+                if cycle == 0 and self._buffer_prefilled:
                     self.evaluate_performance(
                         runner.step_itr,
                         self._obtain_evaluation_samples(runner.get_env_copy()))
@@ -238,3 +237,8 @@ class OffPolicyRLAlgorithm(RLAlgorithm):
                     agent_infos=agent_infos,
                     lengths=lengths,
                     discount=self.discount)
+
+    @property
+    def _buffer_prefilled(self):
+        """bool: Whether first min buffer size steps is done."""
+        return self.replay_buffer.n_transitions_stored >= self.min_buffer_size
