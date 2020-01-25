@@ -39,8 +39,8 @@ jobs:
       env: JOB_RUN_CMD="make ci-job-large"
     - name: "Verify conda and pipenv installations"
       env: JOB_RUN_CMD="make ci-job-verify-envs"
-    - if: type = cron AND false  # See https://github.com/rlworkgroup/garage/issues/1122
-      name: "Nightly tests"
+#    - if: type = cron AND false  # See https://github.com/rlworkgroup/garage/issues/1122
+    - name: "Nightly tests"
       env: JOB_RUN_CMD="make ci-job-nightly"
     # special deploy stage for tag builds ONLY
     - stage: deploy
@@ -101,6 +101,7 @@ git:
 branches:
   only:
   - master
+  - fix_nightly_tests
   - /release-.*/
   - /^v([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.([0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$/  # regex for release tags
 
