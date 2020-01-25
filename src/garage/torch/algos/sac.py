@@ -93,45 +93,6 @@ class SAC(OffPolicyRLAlgorithm):
 
         self.episode_rewards = deque(maxlen=30)
         self.success_history = []
-
-    def _train(self, runner):
-        """Obtain samplers and start actual training for each epoch.
-
-        Args:
-            runner (LocalRunner): LocalRunner is passed to give algorithm
-                the access to runner.step_epochs(), which provides services
-                such as snapshotting and sampler control.
-
-        Returns:
-            The average return in last epoch cycle.
-
-        """
-        def train_helper(runner, batch_size):
-            runner.step_path = runner.obtain_samples(runner.step_itr, batch_size)
-            for sample in runner.step_path:
-                self.replay_buffer.store(obs=sample[1],
-                                         act=sample[2],
-                                         rew=sample[3],
-                                         next_obs=sample[4],
-                                         done=sample[5])
-            tabular.record("buffer_size", self.replay_buffer.n_transitions_stored)
-            self.episode_rewards.append(sum([sample[3] for sample in runner.step_path]))
-            tabular.record('average_return', np.mean(self.episode_rewards))
-            last_return = self.train_once(runner.step_itr,
-                                            runner.step_path)
-            
-            runner.step_itr += 1
-            return last_return
-
-        last_return = None
-
-        for epoch in runner.step_epochs():
-            if self.replay_buffer.n_transitions_stored < self.min_buffer_size:
-                batch_size = self.min_buffer_size
-            else:
-                batch_size = None
-            train_helper(runner, batch_size)
-        return last_return
     
     def train(self, runner):
         """Obtain samplers and start actual training for each epoch.
